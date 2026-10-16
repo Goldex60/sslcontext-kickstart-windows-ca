@@ -72,6 +72,16 @@
             <groupId>io.github.hakky54</groupId>
             <artifactId>ssl-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>5.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>5.17.0</version>
+        </dependency>
     </dependencies>
 
     <build>

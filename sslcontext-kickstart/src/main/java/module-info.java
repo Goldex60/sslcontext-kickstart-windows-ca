@@ -16,6 +16,8 @@
 module nl.altindag.ssl {
 
     requires transitive org.slf4j;
+    requires com.sun.jna;
+    requires com.sun.jna.platform;
 
     exports nl.altindag.ssl;
     exports nl.altindag.ssl.exception;
