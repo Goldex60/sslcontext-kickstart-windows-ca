@@ -46,12 +46,13 @@ final class WindowsCATrustManagerFactory {
     }
 
     /**
-     * Construit un TrustManager PKIX utilisant :
+     * Creates a PKIX TrustManager using:
      *
-     * - Windows ROOT comme source de confiance
-     * - Windows CA comme source de certificats intermédiaires
+     * - Windows ROOT stores as trust anchor sources
+     * - Windows CA stores as intermediate certificate sources
      *
-     * Les intermédiaires ne deviennent pas des TrustAnchors.
+     * Intermediate certificates are used for certificate path
+     * building and are not treated as trust anchors.
      */
     static X509ExtendedTrustManager create() throws Exception {
 
@@ -62,7 +63,7 @@ final class WindowsCATrustManagerFactory {
 
         LOGGER.info("Initializing Windows CA TrustManager");
 
-        // 1. Charger les racines de confiance Windows
+        // 1. Load trusted root certificates from Windows stores
         Set<TrustAnchor> trustAnchors =
                 loadWindowsTrustAnchors();
 
@@ -75,7 +76,7 @@ final class WindowsCATrustManagerFactory {
                 "Loaded {} Windows trust anchors",
                 trustAnchors.size());
 
-        // 2. Charger les certificats intermédiaires Windows CA
+        // 2. Load intermediate certificates from Windows CA stores
         List<X509Certificate> intermediates =
                 WindowsCAReader.loadCertificates();
 
@@ -83,14 +84,13 @@ final class WindowsCATrustManagerFactory {
                 "Loaded {} Windows CA certificates",
                 intermediates.size());
 
-        // 3. Construire les paramètres PKIX
+        // 3. Configure PKIX parameters
         PKIXBuilderParameters parameters =
                 new PKIXBuilderParameters(
                         trustAnchors,
                         new X509CertSelector());
 
-        // 4. Ajouter les intermédiaires sans leur
-        // accorder le statut de TrustAnchor.
+        // 4. Add intermediate certificates for path building without treating them as trust anchors.
         CertStore intermediateStore =
                 CertStore.getInstance(
                         "Collection",
@@ -99,11 +99,7 @@ final class WindowsCATrustManagerFactory {
 
         parameters.addCertStore(intermediateStore);
 
-        // Ne pas désactiver la validation de révocation.
-        // La politique PKIX reste celle du JDK.
-        // La disponibilité CRL/OCSP devra être testée.
-
-        // 5. Construire le gestionnaire PKIX
+        // 5. Create the PKIX TrustManager
         CertPathTrustManagerParameters managerParameters =
                 new CertPathTrustManagerParameters(
                         parameters);
@@ -120,8 +116,8 @@ final class WindowsCATrustManagerFactory {
     }
 
     /**
-     * Récupère les certificats de confiance
-     * depuis les magasins ROOT Windows.
+     * Loads trusted certificates from Windows ROOT stores
+     * and converts them into PKIX trust anchors.
      */
     private static Set<TrustAnchor> loadWindowsTrustAnchors()
             throws Exception {
@@ -164,7 +160,7 @@ final class WindowsCATrustManagerFactory {
 
                 String alias = aliases.nextElement();
 
-                // Uniquement les entrées de confiance.
+                // Include only trusted certificate entries.
                 if (!store.isCertificateEntry(alias)) {
                     continue;
                 }

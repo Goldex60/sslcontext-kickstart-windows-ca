@@ -94,11 +94,11 @@ public final class TrustManagerUtils {
             return Optional.empty();
         }
 
-        // Gestionnaire système existant
+	// Existing system TrustManager
         X509ExtendedTrustManager trustManager =
             createTrustManager(trustStores.toArray(new KeyStore[]{}));
 
-        // Ajout des intermédiaires Windows CA
+	// Add support for Windows CA intermediate certificates
         if (OperatingSystem.get() == OperatingSystem.WINDOWS) {
             try {
                 X509ExtendedTrustManager windowsCaTrustManager =
