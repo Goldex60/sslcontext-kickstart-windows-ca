@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 package nl.altindag.ssl.util;
 
 import com.sun.jna.Native;
@@ -25,9 +26,14 @@ import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class WindowsCAReader {
+
+    private static final int CRYPT_E_NOT_FOUND = 0x80092004;
+    private static final int ERROR_NO_MORE_FILES = 18;
 
     private WindowsCAReader() {
     }
@@ -35,21 +41,21 @@ public final class WindowsCAReader {
     public static List<X509Certificate> loadCertificates()
             throws Exception {
 
-        List<X509Certificate> certificates = new ArrayList<>();
+        Set<X509Certificate> certificates = new LinkedHashSet<>();
 
         certificates.addAll(readStore(
-                WinCrypt.CERT_SYSTEM_STORE_CURRENT_USER));
+                WinCrypt.CERT_SYSTEM_STORE_CURRENT_USER,
+                "CURRENT_USER"));
 
         certificates.addAll(readStore(
-                WinCrypt.CERT_SYSTEM_STORE_LOCAL_MACHINE));
+                WinCrypt.CERT_SYSTEM_STORE_LOCAL_MACHINE,
+                "LOCAL_MACHINE"));
 
-        return certificates;
+        return new ArrayList<>(certificates);
     }
 
-    private static List<X509Certificate> readStore(int location)
-            throws Exception {
-
-        List<X509Certificate> certificates = new ArrayList<>();
+    private static List<X509Certificate> readStore(
+            int location, String locationName) throws Exception {
 
         WinCrypt.HCERTSTORE store = Crypt32.INSTANCE.CertOpenStore(
                 new WinCrypt.CertStoreProviderName(
@@ -57,36 +63,50 @@ public final class WindowsCAReader {
                 0,
                 null,
                 location
-                    | WinCrypt.CERT_STORE_READONLY_FLAG
-                    | WinCrypt.CERT_STORE_OPEN_EXISTING_FLAG,
+                        | WinCrypt.CERT_STORE_READONLY_FLAG
+                        | WinCrypt.CERT_STORE_OPEN_EXISTING_FLAG,
                 new WTypes.LPWSTR("CA")
         );
 
         if (store == null) {
-            throw new IllegalStateException(
-                    "Impossible d'ouvrir Windows CA : "
-                    + Native.getLastError());
+            throw nativeError("CertOpenStore", locationName,
+                    Native.getLastError());
         }
 
-        CertificateFactory factory =
-                CertificateFactory.getInstance("X.509");
+        List<X509Certificate> certificates = new ArrayList<>();
+        WinCrypt.CERT_CONTEXT.ByReference context = null;
+        Throwable failure = null;
 
         try {
-            WinCrypt.CERT_CONTEXT.ByReference context = null;
+            CertificateFactory factory =
+                    CertificateFactory.getInstance("X.509");
 
             while (true) {
+                com.sun.jna.Pointer previous =
+                        context == null ? null : context.getPointer();
 
-                context = Crypt32.INSTANCE.CertEnumCertificatesInStore(
-                        store,
-                        context == null ? null : context.getPointer());
+                context = null;
 
-                if (context == null) {
-                    break;
+                WinCrypt.CERT_CONTEXT.ByReference next =
+                        Crypt32.INSTANCE.CertEnumCertificatesInStore(
+                                store, previous);
+
+                int error = next == null ? Native.getLastError() : 0;
+
+                if (next == null) {
+                    if (error == CRYPT_E_NOT_FOUND
+                            || error == ERROR_NO_MORE_FILES) {
+                        break;
+                    }
+                    throw nativeError(
+                            "CertEnumCertificatesInStore",
+                            locationName, error);
                 }
 
-                byte[] encoded =
-                        context.pbCertEncoded.getByteArray(
-                                0, context.cbCertEncoded);
+                context = next;
+
+                byte[] encoded = context.pbCertEncoded.getByteArray(
+                        0, context.cbCertEncoded);
 
                 X509Certificate certificate =
                         (X509Certificate) factory.generateCertificate(
@@ -95,11 +115,42 @@ public final class WindowsCAReader {
                 certificates.add(certificate);
             }
 
-        } finally {
-            Crypt32.INSTANCE.CertCloseStore(store, 0);
-        }
+            return certificates;
 
-        return certificates;
+        } catch (Exception | Error e) {
+            failure = e;
+            throw e;
+
+        } finally {
+
+            if (context != null) {
+                Crypt32.INSTANCE.CertFreeCertificateContext(context);
+            }
+
+            boolean closed = Crypt32.INSTANCE.CertCloseStore(store, 0);
+
+            if (!closed) {
+                IllegalStateException closeError = nativeError(
+                        "CertCloseStore",
+                        locationName,
+                        Native.getLastError());
+
+                if (failure != null) {
+                    failure.addSuppressed(closeError);
+                } else {
+                    throw closeError;
+                }
+            }
+        }
+    }
+
+    private static IllegalStateException nativeError(
+            String operation, String location, int error) {
+
+        return new IllegalStateException(
+                operation + " failed for Windows CA/"
+                        + location + " (Win32 error: 0x"
+                        + String.format("%08X", error) + ")");
     }
 }
 
