@@ -58,22 +58,8 @@ The documentation below is retained from the original project for historical ref
 
 **Please note:** Any build, security, coverage, compatibility or release badges below refer to the upstream project and do not certify this experimental modification.
 
-[![Actions Status](https://github.com/Hakky54/sslcontext-kickstart/workflows/Build/badge.svg)](https://github.com/Hakky54/sslcontext-kickstart/actions)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=io.github.hakky54%3Asslcontext-kickstart-parent&metric=security_rating)](https://sonarcloud.io/dashboard?id=io.github.hakky54%3Asslcontext-kickstart-parent)
-[![Known Vulnerabilities](https://snyk.io/test/github/Hakky54/sslcontext-kickstart/badge.svg)](https://snyk.io/test/github/Hakky54/sslcontext-kickstart)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=io.github.hakky54%3Asslcontext-kickstart-parent&metric=coverage)](https://sonarcloud.io/dashboard?id=io.github.hakky54%3Asslcontext-kickstart-parent)
-[![JDK Compatibility](https://img.shields.io/badge/JDK_Compatibility-8+-blue.svg)](#)
-[![Kotlin Compatibility](https://img.shields.io/badge/Kotlin_Compatibility-1.5+-blue.svg)](#)
-[![Scala Compatibility](https://img.shields.io/badge/Scala_Compatibility-2.11+-blue.svg)](#)
-[![Android API Compatibility](https://img.shields.io/badge/Android_API_Compatibility-24+-blue.svg)](#)
-[![Apache2 license](https://img.shields.io/badge/license-Aache2.0-blue.svg)](https://github.com/Hakky54/sslcontext-kickstart/blob/master/LICENSE)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.github.hakky54/sslcontext-kickstart/badge.svg)](https://mvnrepository.com/artifact/io.github.hakky54/sslcontext-kickstart)
-[![javadoc](https://javadoc.io/badge2/io.github.hakky54/sslcontext-kickstart/javadoc.svg)](https://javadoc.io/doc/io.github.hakky54/sslcontext-kickstart)
-[![Dependencies: none](https://img.shields.io/badge/dependencies-1-blue.svg)](#)
-[![GitHub stars chart](https://img.shields.io/badge/github%20stars-chart-blue.svg)](https://seladb.github.io/StarTrack-js/#/preload?r=hakky54,sslcontext-kickstart)
 [![Join the chat at https://gitter.im/hakky54/sslcontext-kickstart](https://badges.gitter.im/hakky54/sslcontext-kickstart.svg)](https://gitter.im/hakky54/sslcontext-kickstart?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/dashboard?id=io.github.hakky54%3Asslcontext-kickstart-parent)
 
 # SSLContext Kickstart 🔐 [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Easily%20configure%20ssl/tls%20for%20your%20favourite%20http%20client%20with%20sslcontext-kickstart.%20Works%20with%20over%2040%20different%20java,%20scala,%20kotlin%20clients&url=https://github.com/Hakky54/sslcontext-kickstart&via=hakky541&hashtags=encryption,security,https,ssl,tls,developer,java,scala,kotlin,sslcontextkickstart)
 Hey, hello there 👋 Welcome, I hope you will like this library ❤️ Feel free to drop a message in the [📖 Guestbook](https://github.com/Hakky54/sslcontext-kickstart/discussions/302), I would love to hear your story and experience in using this library.
