@@ -1,3 +1,63 @@
+# Windows CA / PKIX Support — Experimental Proof of Concept
+
+> **Unofficial, experimental and unmaintained repository.**
+>
+> This repository is a modified copy of [SSLContext Kickstart](https://github.com/Hakky54/sslcontext-kickstart), originally developed and maintained by **Hakan Altindag (Hakky54)** and its contributors.
+>
+> It is based on version **9.1.0** and was created solely to demonstrate a possible approach for retrieving intermediate CA certificates from the Windows certificate stores and using them for Java PKIX certification path building.
+>
+> **This repository is not an official release, is not maintained as a separate distribution, and is not intended for production use.** For supported versions, documentation and updates, please refer to the original project.
+
+## Purpose
+
+This proof of concept supports the technical discussion in [Desidero issue #20](https://github.com/Hakky54/desidero/issues/20).
+
+The implementation:
+
+- Retrieves intermediate certificates from the Windows `CA` stores using JNA and the Windows Crypt32 API.
+- Makes these certificates available to the Java PKIX certification path builder through a `CertStore`.
+- Keeps intermediate certificates separate from explicitly configured `TrustAnchor` objects.
+- Integrates an additional PKIX TrustManager with the existing system TrustManager implementation.
+
+## Implementation and changes
+
+The complete changes compared with the original SSLContext Kickstart 9.1.0 release are available here:
+
+**[View the complete Windows CA / PKIX changes](https://github.com/Goldex60/sslcontext-kickstart-windows-ca/compare/ee5d2b7e9b907702b49bc135af9a24d812f4d327...8d81ce7b833bea7203a20642eb80602bc0dc0bc9)**
+
+The principal implementation files are:
+
+- `WindowsCAReader.java` — Windows certificate store access using JNA/Crypt32.
+- `WindowsCATrustManagerFactory.java` — PKIX TrustManager configuration with separate trust anchors and intermediate certificate sources.
+- `TrustManagerUtils.java` — Integration into the existing system TrustManager logic.
+
+## Project status
+
+This is a technical proof of concept, not a maintained fork or an alternative distribution of the original library.
+
+No compatibility, security, or maintenance guarantees are provided for these modifications. The implementation has not been adapted to the current Desidero and Ayza architectures.
+
+The intention is to discuss the approach with the original maintainer and, if appropriate, contribute a suitable implementation upstream.
+
+## Original project and attribution
+
+All original SSLContext Kickstart source code, documentation, trademarks and project identity remain attributable to the original project and its contributors.
+
+- **Original repository:** https://github.com/Hakky54/sslcontext-kickstart
+- **Original maintainer:** Hakan Altindag (Hakky54)
+- **Original version used:** 9.1.0
+- **License:** Apache License 2.0
+
+The original license and copyright notices are retained.
+
+---
+
+## Original SSLContext Kickstart README
+
+The documentation below is retained from the original project for historical reference.
+
+**Please note:** Any build, security, coverage, compatibility or release badges below refer to the upstream project and do not certify this experimental modification.
+
 [![Actions Status](https://github.com/Hakky54/sslcontext-kickstart/workflows/Build/badge.svg)](https://github.com/Hakky54/sslcontext-kickstart/actions)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=io.github.hakky54%3Asslcontext-kickstart-parent&metric=security_rating)](https://sonarcloud.io/dashboard?id=io.github.hakky54%3Asslcontext-kickstart-parent)
 [![Known Vulnerabilities](https://snyk.io/test/github/Hakky54/sslcontext-kickstart/badge.svg)](https://snyk.io/test/github/Hakky54/sslcontext-kickstart)
