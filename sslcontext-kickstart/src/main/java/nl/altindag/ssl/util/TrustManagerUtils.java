@@ -85,16 +85,43 @@ public final class TrustManagerUtils {
         return new JdkX509ExtendedTrustManager(createTrustManager((KeyStore) null));
     }
 
+
     public static Optional<X509ExtendedTrustManager> createTrustManagerWithSystemTrustedCertificates() {
+
         List<KeyStore> trustStores = KeyStoreUtils.loadSystemKeyStores();
+
         if (trustStores.isEmpty()) {
             return Optional.empty();
         }
 
-        X509ExtendedTrustManager trustManager = createTrustManager(trustStores.toArray(new KeyStore[]{}));
-        return Optional.of(new SystemX509ExtendedTrustManager(trustManager, OperatingSystem.get().name().toLowerCase()));
-    }
+        // Gestionnaire système existant
+        X509ExtendedTrustManager trustManager =
+            createTrustManager(trustStores.toArray(new KeyStore[]{}));
 
+        // Ajout des intermédiaires Windows CA
+        if (OperatingSystem.get() == OperatingSystem.WINDOWS) {
+            try {
+                X509ExtendedTrustManager windowsCaTrustManager =
+                    WindowsCATrustManagerFactory.create();
+
+                trustManager = combine(
+                    trustManager,
+                    windowsCaTrustManager
+                );
+
+            } catch (Exception e) {
+                LoggerFactory.getLogger(TrustManagerUtils.class)
+                    .warn("Unable to initialize Windows CA TrustManager", e);
+            }
+        }
+
+        return Optional.of(
+            new SystemX509ExtendedTrustManager(
+                    trustManager,
+                    OperatingSystem.get().name().toLowerCase()
+            )
+        );
+    }
 
     public static X509ExtendedTrustManager createTrustManager(List<X509Certificate> certificates) {
         KeyStore trustStore = KeyStoreUtils.createTrustStore(certificates);
