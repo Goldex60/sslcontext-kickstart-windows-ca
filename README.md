@@ -1,5 +1,8 @@
 # Windows CA / PKIX Support — Experimental Proof of Concept
 
+![Status](https://img.shields.io/badge/Status-Experimental-orange)
+![Maintenance](https://img.shields.io/badge/Maintenance-Not%20Maintained-lightgrey)
+
 > **Unofficial, experimental and unmaintained repository.**
 >
 > This repository is a modified copy of [SSLContext Kickstart](https://github.com/Hakky54/sslcontext-kickstart), originally developed and maintained by **Hakan Altindag (Hakky54)** and its contributors.
